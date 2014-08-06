@@ -41,7 +41,11 @@ int main() {
 			return std::make_pair(buf, size);
 		};
 		auto hand = [](const std::shared_ptr<char> &buf, const std::size_t size){
-			std::cout << "ptr=" << (void*)buf.get() << ", size=" << size << ", thid=" << std::this_thread::get_id() << std::endl;
+			std::cout
+				<< "ptr="    << (void*)buf.get()
+				<< ", size=" << size
+				<< ", thid=" << std::this_thread::get_id()
+			<< std::endl;
 		};
 
 		processor<decltype(func), decltype(hand)> p(8);
