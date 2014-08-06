@@ -57,9 +57,9 @@ struct processor: private boost::noncopyable {
 
 	virtual ~processor() {
 		work.reset();
-		for ( auto& it: threads ) {
+		for ( auto& it: threads )
 			it.join();
-		}
+
 		ios.run();
 	}
 
