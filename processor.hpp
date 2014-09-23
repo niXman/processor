@@ -100,7 +100,7 @@ struct processor: private boost::noncopyable {
 private:
 	struct task: boost::intrusive::list_base_hook<> {
 		task(const std::shared_ptr<char> &buf, const std::size_t size, H handler)
-			:buf(buf)
+			:buf(std::move(buf))
 			,size(size)
 			,processed(false)
 			,handler(std::move(handler))
@@ -114,6 +114,7 @@ private:
 
 	std::mutex mutex;
 	boost::intrusive::list<task> tasks;
+
 private:
 	boost::asio::io_service ios;
 	std::unique_ptr<boost::asio::io_service::work> work;
