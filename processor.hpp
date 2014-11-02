@@ -63,17 +63,17 @@ struct processor: private boost::noncopyable {
 		ios.run();
 	}
 
-	void add(const std::shared_ptr<char> &buf, const std::size_t size, F func, H handler) {
-		task *t = new task(buf, size, handler);
+	void add(std::shared_ptr<char> buf, const std::size_t size, F func, H handler) {
+		task *t = new task(std::move(buf), size, std::move(handler));
 
 		{
 			std::lock_guard<std::mutex> lock(mutex);
 			tasks.push_back(*t);
 		}
 
-		auto proc = [this, func, t]() {
+		auto proc = [this, func=std::move(func), t]() {
 			auto res = func(t->buf, t->size);
-			t->buf  = res.first;
+			t->buf  = std::move(res.first);
 			t->size = res.second;
 
 			{
@@ -99,17 +99,17 @@ struct processor: private boost::noncopyable {
 
 private:
 	struct task: boost::intrusive::list_base_hook<> {
-		task(const std::shared_ptr<char> &buf, const std::size_t size, H handler)
+		task(std::shared_ptr<char> buf, const std::size_t size, H handler)
 			:buf(std::move(buf))
 			,size(size)
-			,processed(false)
 			,handler(std::move(handler))
+			,processed(false)
 		{}
 
 		std::shared_ptr<char> buf;
 		std::size_t size;
-		bool processed;
 		H handler;
+		bool processed;
 	};
 
 	std::mutex mutex;
